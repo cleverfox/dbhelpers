@@ -1,12 +1,20 @@
 -module(dbapi).
 
 -export([db2map/2,
+         q/1,
          redis_hash_to_map/1,
          geo2json/1
         ]).
 
+q({ok, Header, Body}) ->
+  db2map(Header,Body);
+q({error,_}=Any) ->
+  Any.
+
 db2map(Header,Payload) ->
   Header1=lists:map(fun({column,Title,_Type,_,_,_}) ->
+                        binary_to_atom(Title,utf8);
+                       ({column,Title,_Type,_,_,_,_}) ->
                         binary_to_atom(Title,utf8)
                     end, Header),
   lists:map(fun(Item) ->
